@@ -1,5 +1,5 @@
 import React from 'react';
-import { AbsoluteFill, Img } from 'remotion';
+import { AbsoluteFill } from 'remotion';
 
 // Definimos a interface de propriedades para que você possa injetar via automação
 export type InstagramCommentProps = {
@@ -34,20 +34,29 @@ export const InstagramCommentTemplate: React.FC<InstagramCommentProps> = ({
           padding: '35px',
           width: '100%',
           maxWidth: 900,
-          boxShadow: '0 12px 40px rgba(0,0,0,0.3)'
+          boxShadow: '0 12px 40px rgba(0,0,0,0.3)',
+          zIndex: 1,
         }}>
           
           {/* Foto de Perfil */}
-          <Img 
-            src={avatarUrl} 
-            style={{ 
+          <div
+            aria-label={avatarUrl}
+            style={{
               width: 90, 
               height: 90, 
               borderRadius: '50%', 
               marginRight: 24,
-              backgroundColor: '#e1e1e1'
-            }} 
-          />
+              backgroundColor: '#e1e1e1',
+              color: '#4a4a4a',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 34,
+              fontWeight: 700,
+            }}
+          >
+            {username.slice(0, 1).toUpperCase()}
+          </div>
 
           {/* Conteúdo Central do Comentário */}
           <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center' }}>

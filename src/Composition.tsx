@@ -11,11 +11,13 @@ const backgroundVideos = [
   "subwaysurfers.webm",
 ];
 
+const backgroundVideoSeed = `background-video-${Date.now()}`;
 const selectedVideo =
-  backgroundVideos[Math.floor(random("background-video") * backgroundVideos.length)];
+  backgroundVideos[Math.floor(random(backgroundVideoSeed) * backgroundVideos.length)];
 
-  const totalDuration = mockData.comments.reduce(
-  (acc, item) => item.startFrame + item.durationInFrames,
+const totalDuration = mockData.comments.reduce(
+  (latestEndFrame, item) =>
+    Math.max(latestEndFrame, item.startFrame + item.durationInFrames),
   0
 );
 
