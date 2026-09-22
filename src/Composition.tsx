@@ -75,12 +75,7 @@ const normalizeComment = (comment: RawComment, index: number) => {
 };
 
 const backgroundVideos = [
-  "gtaramp.webm",
-  "gtaramp2.webm",
-  "minecraftparkour.webm",
-  "minecraftparkour2.webm",
-  "minecraftparkour3.webm",
-  "subwaysurfers.webm",
+  "furadeira.mp4",
 ];
 
 const backgroundVideoSeed = `background-video-${Date.now()}`;
@@ -111,12 +106,14 @@ const totalDuration = normalizedComments.reduce(
   0,
 );
 
+const defaultIntroDurationInFrames = 300;
+
 export const MyComposition: React.FC = () => {
   return (
     <Composition<any, LyricVideoProps>
       id="InstagramCommentVideo"
       component={LyricVideo}
-      durationInFrames={totalDuration || 300}
+      durationInFrames={defaultIntroDurationInFrames + (totalDuration || 300)}
       fps={30}
       width={1080}
       height={1920}
@@ -124,6 +121,7 @@ export const MyComposition: React.FC = () => {
         audioPath: "vaporwave.mp3",//!Array.isArray(commentsFile) ? commentsFile.audioPath ?? "" : "",
         bgVideoUrl: staticFile(selectedVideo),
         comments: normalizedComments,
+        introDurationInFrames: defaultIntroDurationInFrames,
       }}
     />
   );
