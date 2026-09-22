@@ -9,7 +9,6 @@ from mcp.server.fastmcp import FastMCP
 mcp = FastMCP("faster-whisper-transcriber")
 model = WhisperModel("small", device="cpu", compute_type="int8")
 
-
 @mcp.tool()
 def transcribe_audio(file_path: str) -> dict[str, Any]:
     """Transcreve um arquivo de áudio local usando o faster-whisper."""

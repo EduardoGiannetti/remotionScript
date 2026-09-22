@@ -17,6 +17,9 @@ export const InstagramCommentTemplate: React.FC<InstagramCommentProps> = ({
   likes,
   time,
 }) => {
+  const shortUsername = username || 'Usuário';
+  const avatar = avatarUrl || 'https://github.com/github.png';
+
   return (
       <AbsoluteFill 
         style={{ 
@@ -40,7 +43,7 @@ export const InstagramCommentTemplate: React.FC<InstagramCommentProps> = ({
           
           {/* Foto de Perfil */}
           <div
-            aria-label={avatarUrl}
+            aria-label={avatar}
             style={{
               width: 90, 
               height: 90, 
@@ -53,9 +56,13 @@ export const InstagramCommentTemplate: React.FC<InstagramCommentProps> = ({
               justifyContent: 'center',
               fontSize: 34,
               fontWeight: 700,
+              overflow: 'hidden',
+              backgroundImage: avatar ? `url(${avatar})` : 'none',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
             }}
           >
-            {username.slice(0, 1).toUpperCase()}
+            {!avatar && shortUsername.slice(0, 1).toUpperCase()}
           </div>
 
           {/* Conteúdo Central do Comentário */}
@@ -63,7 +70,7 @@ export const InstagramCommentTemplate: React.FC<InstagramCommentProps> = ({
             {/* Linha do Usuário e Tempo */}
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
               <span style={{ fontWeight: 600, fontSize: 28, color: '#000', marginRight: 12 }}>
-                {username}
+                {shortUsername}
               </span>
               <span style={{ fontSize: 24, color: '#737373' }}>
                 {time}
