@@ -1,0 +1,3 @@
+faster-whisper
+mcp
+whisperx==3.8.7

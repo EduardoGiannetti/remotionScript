@@ -1,0 +1,17 @@
+{
+  "task_id": "b226fd66-f50e-4982-9c3e-1aa08244bbf2",
+  "text": [
+    "[Intro]\nLimpou tudo mesmo, cara é bom\n\n[Verse 1 - falado]\nGosto muito do microondas\nColoca no microondas, 3 minutos\n5 segundos no microondas\nJoga vinagre\nFormatação física!\n\n[Chorus - animado]\n2 marretadas bem firme bem mais rápido e já era\nEu uso marreta! Aí não precisa ir na academia nesse dia\nPelo Mor de deus homi\nQue isso seu Jorge, calma ai\n\n[Verse 2 - falado]\nMelhor jogar na churrasqueira e colocar o soprador pra esquentar bem a brasa. Se chegar a 300 graus nem a nsa recupera\nAinda furou o tijolo da churrasqueira\nEra só mp3 baixados no Kazaa\n\n[Chorus 2 - animado]\nQuando vai ver só histórico do Xvideo\nAi depois lembra q tinha uma pasta de bitcoin no HD\nMatou 4 bitcoins\nPolícia tá na bota?\n\n[Bridge - falado]\nAqui em casa meu marido vai jogar fora eu desmonto, pego os imãs pra segurar grampo ou agulha ou ate por na geladeira. E o disco vira plaqueta para colocar maquiagem\nLimpeza oq é isso??? No meu caso isso daí vira núcleo de hidrólise para gerar energia\n\n[Outro]\nTá devendo."
+  ],
+  "payload_completo": {
+    "prompt": "funk brasileiro animado e humorístico com tamborzão marcante, graves de 808 potentes, percussão seca e sintetizadores agudos, vocais masculinos dinâmicos em estilo falado-cantado com bastante ritmo e personalidade, produção limpa, atmosfera divertida e debochada",
+    "lyrics": "[Intro]\nLimpou tudo mesmo, cara é bom\n\n[Verse 1 - falado]\nGosto muito do microondas\nColoca no microondas, 3 minutos\n5 segundos no microondas\nJoga vinagre\nFormatação física!\n\n[Chorus - animado]\n2 marretadas bem firme bem mais rápido e já era\nEu uso marreta! Aí não precisa ir na academia nesse dia\nPelo Mor de deus homi\nQue isso seu Jorge, calma ai\n\n[Verse 2 - falado]\nMelhor jogar na churrasqueira e colocar o soprador pra esquentar bem a brasa. Se chegar a 300 graus nem a nsa recupera\nAinda furou o tijolo da churrasqueira\nEra só mp3 baixados no Kazaa\n\n[Chorus 2 - animado]\nQuando vai ver só histórico do Xvideo\nAi depois lembra q tinha uma pasta de bitcoin no HD\nMatou 4 bitcoins\nPolícia tá na bota?\n\n[Bridge - falado]\nAqui em casa meu marido vai jogar fora eu desmonto, pego os imãs pra segurar grampo ou agulha ou ate por na geladeira. E o disco vira plaqueta para colocar maquiagem\nLimpeza oq é isso??? No meu caso isso daí vira núcleo de hidrólise para gerar energia\n\n[Outro]\nTá devendo.",
+    "vocal_language": "pt",
+    "audio_duration": 150,
+    "batch_size": 1,
+    "model": "acestep-v15-turbo",
+    "thinking": false,
+    "task_type": "text2music",
+    "inference_steps": 8
+  }
+}

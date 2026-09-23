@@ -12,6 +12,8 @@ export type LyricVideoProps = {
   audioPath: string;
   comments: LyricComment[];
   introDurationInFrames: number;
+  backgroundVideoDurationInFrames: number;
+  durationInFrames: number;
 };
 
 export const LyricVideo: React.FC<LyricVideoProps> = ({
@@ -19,12 +21,16 @@ export const LyricVideo: React.FC<LyricVideoProps> = ({
   audioPath,
   comments,
   introDurationInFrames,
+  backgroundVideoDurationInFrames,
 }) => {
   const frame = useCurrentFrame();
   const safeIntroDurationInFrames = Number.isFinite(introDurationInFrames)
     ? Math.max(1, Math.floor(introDurationInFrames))
     : 300;
   const commentsFrame = frame - safeIntroDurationInFrames;
+  const safeBackgroundVideoDurationInFrames = Number.isFinite(backgroundVideoDurationInFrames)
+    ? Math.max(1, Math.floor(backgroundVideoDurationInFrames))
+    : 1;
   const audioSrc = /^(https?:|data:|blob:)/.test(audioPath)
     ? audioPath
     : staticFile(audioPath);
@@ -45,7 +51,7 @@ export const LyricVideo: React.FC<LyricVideoProps> = ({
       </Sequence>
 
       <Sequence from={safeIntroDurationInFrames}>
-        <Loop durationInFrames={safeIntroDurationInFrames}>
+        <Loop durationInFrames={safeBackgroundVideoDurationInFrames}>
           <Video
             src={bgVideoUrl}
             muted

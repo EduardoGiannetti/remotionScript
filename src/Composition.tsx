@@ -1,4 +1,5 @@
 import { Composition, random, staticFile } from "remotion";
+import { getVideoMetadata } from "@remotion/media-utils";
 import { LyricVideo, type LyricVideoProps } from "./lyricvideo";
 
 declare const require: {
@@ -107,6 +108,12 @@ const totalDuration = normalizedComments.reduce(
 );
 
 const defaultIntroDurationInFrames = 300;
+const fps = 30;
+
+const calculateVideoDurationInFrames = async (src: string) => {
+  const metadata = await getVideoMetadata(src);
+  return Math.max(1, Math.ceil(metadata.durationInSeconds * fps));
+};
 
 export const MyComposition: React.FC = () => {
   return (
@@ -114,14 +121,35 @@ export const MyComposition: React.FC = () => {
       id="InstagramCommentVideo"
       component={LyricVideo}
       durationInFrames={defaultIntroDurationInFrames + (totalDuration || 300)}
-      fps={30}
+      fps={fps}
       width={1080}
       height={1920}
+      calculateMetadata={async ({props}) => {
+        const backgroundVideoDurationInFrames = await calculateVideoDurationInFrames(
+          props.bgVideoUrl,
+        );
+        const introDurationInFrames = backgroundVideoDurationInFrames;
+        const durationInFrames = introDurationInFrames + (totalDuration || 300);
+
+        return {
+          durationInFrames,
+          props: {
+            ...props,
+            introDurationInFrames,
+            backgroundVideoDurationInFrames,
+            durationInFrames,
+          },
+        };
+      }}
       defaultProps={{
-        audioPath: "vaporwave.mp3",//!Array.isArray(commentsFile) ? commentsFile.audioPath ?? "" : "",
+        audioPath: !Array.isArray(commentsFile)
+          ? commentsFile.audioPath ?? "vaporwave.mp3"
+          : "vaporwave.mp3",
         bgVideoUrl: staticFile(selectedVideo),
         comments: normalizedComments,
         introDurationInFrames: defaultIntroDurationInFrames,
+        backgroundVideoDurationInFrames: defaultIntroDurationInFrames,
+        durationInFrames: defaultIntroDurationInFrames + (totalDuration || 300),
       }}
     />
   );
