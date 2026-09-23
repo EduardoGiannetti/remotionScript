@@ -10,6 +10,8 @@
 </p>
 
 Welcome to your Remotion project!
+## Flowchart de funcionamento:
+<img width="1498" height="1437" alt="graph" src="https://github.com/user-attachments/assets/e31fa189-346f-4a9c-9f4c-78b59e9258fd" />
 
 ## Commands
 
@@ -37,17 +39,6 @@ npx remotion render
 npx remotion upgrade
 ```
 
-## Docs
-
-Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).
-
-## Help
-
-We provide help on our [Discord server](https://discord.gg/6VzzNDwUwV).
-
-## Issues
-
-Found an issue with Remotion? [File an issue here](https://github.com/remotion-dev/remotion/issues/new).
 
 ## License
 
