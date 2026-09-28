@@ -1,8 +1,12 @@
 import React from 'react';
 import { AbsoluteFill, Audio, Loop, Sequence, Video, staticFile, useCurrentFrame } from 'remotion';
 import { InstagramCommentTemplate, type InstagramCommentProps } from './InstagramCommentTemplate';
+import { TikTokCommentTemplate } from './TikTokCommentTemplate';
+
+export type CommentPlatform = 'instagram' | 'tiktok';
 
 export type LyricComment = InstagramCommentProps & {
+  platform?: CommentPlatform;
   startFrame: number;
   durationInFrames: number;
 };
@@ -67,7 +71,11 @@ export const LyricVideo: React.FC<LyricVideoProps> = ({
         {audioPath && <Audio src={audioSrc} />}
       </Sequence>
 
-      {activeComment ? <InstagramCommentTemplate {...activeComment} /> : null}
+      {activeComment?.platform === 'tiktok' ? (
+        <TikTokCommentTemplate {...activeComment} />
+      ) : activeComment ? (
+        <InstagramCommentTemplate {...activeComment} />
+      ) : null}
     </AbsoluteFill>
   );
 };

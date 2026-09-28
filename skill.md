@@ -39,7 +39,8 @@ Diretórios principais:
 - `timestamps/`: transcrições ou alinhamentos em JSON.
 - `src/Composition.tsx`: registro da composição, normalização e metadados.
 - `src/lyricvideo.tsx`: montagem do vídeo, áudio, loop e comentário ativo.
-- `src/InstagramCommentTemplate.tsx`: layout do card de comentário.
+- `src/InstagramCommentTemplate.tsx`: layout do card de comentário do Instagram.
+- `src/TikTokCommentTemplate.tsx`: layout do card de comentário do TikTok.
 - `whisper_mcp_server.py`: ferramenta MCP `transcribe_audio`.
 - `remotion.config.ts`: Rspack, JPEG e Tailwind v4.
 
@@ -74,13 +75,28 @@ O arquivo também pode ser um objeto:
 }
 ```
 
+Comentários do TikTok são aceitos no formato do scraper:
+
+```json
+{
+	"text": "Texto do comentário",
+	"diggCount": 12,
+	"createTimeISO": "2026-09-09T00:42:00.000Z",
+	"uniqueId": "usuario",
+	"avatarThumbnail": "https://...",
+	"startFrame": 0,
+	"durationInFrames": 90
+}
+```
+
 Campos derivados na normalização:
 
-- `username`: `author.username`, depois `username`, depois `UsuarioN`;
-- `avatarUrl`: `author.profilePicUrl`, depois `profilePicUrl` ou `avatarUrl`;
+- `platform`: usa `platform` (`instagram`/`tiktok`) se informado; senão vira `tiktok` quando existe `uniqueId`, `diggCount`, `avatarThumbnail` ou `createTimeISO`. Define o card usado: `src/InstagramCommentTemplate.tsx` ou `src/TikTokCommentTemplate.tsx`;
+- `username`: `author.username`, depois `username`, depois `uniqueId`, depois `UsuarioN`;
+- `avatarUrl`: `author.profilePicUrl`, depois `profilePicUrl`, `avatarUrl` ou `avatarThumbnail`;
 - `commentText`: `text` ou `commentText`;
-- `likes`: convertido para número, com padrão `0`;
-- `time`: calculado a partir de `createdAtISO`/`createdAt`, ou usa `time`/`agora`;
+- `likes`: `likes` ou `diggCount`, convertido para número, com padrão `0` (o card do TikTok abrevia como `1.2K`);
+- `time`: calculado a partir de `createdAtISO`/`createdAt` ou `createTimeISO`/`createTime`, ou usa `time`/`agora`. No TikTok, datas com mais de 7 dias aparecem como `DD-MM`;
 - `startFrame`: usa o valor recebido ou `index * 90`;
 - `durationInFrames`: usa o valor recebido ou `90`.
 

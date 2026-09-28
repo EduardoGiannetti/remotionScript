@@ -1,6 +1,6 @@
 import { Composition, random, staticFile } from "remotion";
 import { getVideoMetadata } from "@remotion/media-utils";
-import { LyricVideo } from "./lyricvideo";
+import { LyricVideo, type CommentPlatform } from "./lyricvideo";
 
 declare const require: {
   context: (
@@ -29,16 +29,42 @@ type RawComment = {
   createdAt?: number;
   startFrame?: number;
   durationInFrames?: number;
+  platform?: CommentPlatform;
+  // Campos do JSON do TikTok
+  uniqueId?: string;
+  avatarThumbnail?: string;
+  diggCount?: number | string;
+  createTimeISO?: string;
+  createTime?: number;
+};
+
+// Os campos exclusivos do scraper do TikTok identificam a origem do comentário.
+const detectPlatform = (comment: RawComment): CommentPlatform => {
+  if (comment.platform) return comment.platform;
+  const isTikTok =
+    comment.uniqueId !== undefined ||
+    comment.diggCount !== undefined ||
+    comment.avatarThumbnail !== undefined ||
+    comment.createTimeISO !== undefined;
+  return isTikTok ? "tiktok" : "instagram";
+};
+
+const parseCommentDate = (comment: RawComment) => {
+  const isoDate = comment.createdAtISO ?? comment.createTimeISO;
+  const unixSeconds = comment.createdAt ?? comment.createTime;
+  const dateValue = isoDate
+    ? new Date(isoDate)
+    : typeof unixSeconds === "number"
+      ? new Date(unixSeconds * 1000)
+      : null;
+
+  return dateValue && !Number.isNaN(dateValue.getTime()) ? dateValue : null;
 };
 
 const formatInstagramDate = (comment: RawComment) => {
-  const dateValue = comment.createdAtISO
-    ? new Date(comment.createdAtISO)
-    : typeof comment.createdAt === "number"
-      ? new Date(comment.createdAt * 1000)
-      : null;
+  const dateValue = parseCommentDate(comment);
 
-  if (!dateValue || Number.isNaN(dateValue.getTime())) {
+  if (!dateValue) {
     return comment.time ?? "agora";
   }
 
@@ -54,21 +80,51 @@ const formatInstagramDate = (comment: RawComment) => {
   return `${elapsedWeeks} sem`;
 };
 
+// O TikTok usa tempo relativo na primeira semana e depois a data como DD-MM.
+const formatTikTokDate = (comment: RawComment) => {
+  const dateValue = parseCommentDate(comment);
+
+  if (!dateValue) {
+    return comment.time ?? "agora";
+  }
+
+  const elapsedMinutes = Math.max(0, Math.floor((Date.now() - dateValue.getTime()) / 60000));
+  const elapsedHours = Math.floor(elapsedMinutes / 60);
+  const elapsedDays = Math.floor(elapsedHours / 24);
+
+  if (elapsedMinutes < 1) return "agora";
+  if (elapsedMinutes < 60) return `${elapsedMinutes}min`;
+  if (elapsedHours < 24) return `${elapsedHours}h`;
+  if (elapsedDays < 7) return `${elapsedDays}d`;
+
+  const day = `0${dateValue.getDate()}`.slice(-2);
+  const month = `0${dateValue.getMonth() + 1}`.slice(-2);
+  return `${day}-${month}`;
+};
+
 const normalizeComment = (comment: RawComment, index: number) => {
-  const username = comment.author?.username ?? comment.username ?? `Usuario${index + 1}`;
-  const avatarUrl = comment.author?.profilePicUrl ?? comment.profilePicUrl ?? comment.avatarUrl ?? "";
+  const platform = detectPlatform(comment);
+  const username =
+    comment.author?.username ?? comment.username ?? comment.uniqueId ?? `Usuario${index + 1}`;
+  const avatarUrl =
+    comment.author?.profilePicUrl ??
+    comment.profilePicUrl ??
+    comment.avatarUrl ??
+    comment.avatarThumbnail ??
+    "";
   const commentText = comment.text ?? comment.commentText ?? "";
-  const time = formatInstagramDate(comment);
+  const time = platform === "tiktok" ? formatTikTokDate(comment) : formatInstagramDate(comment);
   const startFrame = typeof comment.startFrame === "number" ? comment.startFrame : index * 90;
   const durationInFrames =
     typeof comment.durationInFrames === "number" ? comment.durationInFrames : 90;
 
   return {
     ...comment,
+    platform,
     username,
     avatarUrl,
     commentText,
-    likes: Number(comment.likes ?? 0),
+    likes: Number(comment.likes ?? comment.diggCount ?? 0),
     time,
     startFrame,
     durationInFrames,

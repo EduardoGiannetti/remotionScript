@@ -21,6 +21,7 @@ import os
 import re
 import shutil
 import sys
+import subprocess
 import threading
 import unicodedata
 from difflib import SequenceMatcher
@@ -37,6 +38,7 @@ COMMENTS_DIR = PROJECT_DIR / "comments"
 COMMENTS_OUTPUT = COMMENTS_DIR / "comments.json"
 PUBLIC_DIR = PROJECT_DIR / "public"
 PUBLIC_AUDIO_DIR = PUBLIC_DIR / "audio"
+RENDER_OUTPUT_DIR = PROJECT_DIR / "out"
 
 WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "medium")
 DEVICE = "cpu"
@@ -86,6 +88,8 @@ def transcribe_audio(
                 fps,
                 hold_seconds,
             )
+        except subprocess.CalledProcessError as error:
+            raise ToolError(f"Falha ao renderizar o vídeo (código {error.returncode}).") from error
         except (OSError, ValueError) as error:
             # Sem ToolError, o SDK esconde a mensagem e o cliente só vê "Error executing tool".
             raise ToolError(str(error)) from error
@@ -140,7 +144,11 @@ def _run(
         if comment is None or score < MIN_COMMENT_SIMILARITY:
             unmatched.append(phrase)
             continue
-        phrase["username"] = (comment.get("author") or {}).get("username") or comment.get("username")
+        phrase["username"] = (
+            (comment.get("author") or {}).get("username")
+            or comment.get("username")
+            or comment.get("uniqueId")  # TikTok
+        )
         entries.append(
             {
                 **comment,
@@ -188,7 +196,10 @@ def _run(
     for phrase in unmatched:
         log.warning("Frase sem comentário correspondente: %s", phrase["lyric"])
 
+    video_path = _render_video(audio_path)
+
     return {
+        "videoPath": str(video_path),
         "commentsJson": str(COMMENTS_OUTPUT),
         "alignmentJson": str(alignment_path),
         "audioPath": remotion_audio_path,
@@ -306,6 +317,34 @@ def _publish_audio(audio_path: Path) -> str:
 def _write_json(path: Path, data: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _render_video(audio_path: Path) -> Path:
+    """Exporta a composição usando o comments.json recém-gerado."""
+    RENDER_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    safe_stem = re.sub(r"[^A-Za-z0-9._-]+", "_", audio_path.stem).strip("._") or "video"
+    output_path = RENDER_OUTPUT_DIR / f"{safe_stem}.mp4"
+    command = [
+        "npx",
+        "remotion",
+        "render",
+        "src/index.ts",
+        "InstagramCommentVideo",
+        str(output_path.relative_to(PROJECT_DIR)),
+    ]
+    log.info("Renderizando vídeo para %s", output_path)
+    if os.name == "nt":
+        subprocess.run(
+            subprocess.list2cmdline(command),
+            cwd=PROJECT_DIR,
+            check=True,
+            shell=True,
+            stdout=subprocess.DEVNULL,
+        )
+    else:
+        subprocess.run(command, cwd=PROJECT_DIR, check=True, stdout=subprocess.DEVNULL)
+    log.info("Vídeo exportado: %s", output_path)
+    return output_path
 
 
 # --- WhisperX ----------------------------------------------------------------------------
@@ -589,7 +628,7 @@ def _comment_text(comment: dict[str, Any]) -> str:
 
 def _likes(comment: dict[str, Any]) -> int:
     try:
-        return int(comment.get("likes") or 0)
+        return int(comment.get("likes") or comment.get("diggCount") or 0)  # diggCount: TikTok
     except (TypeError, ValueError):
         return 0
 

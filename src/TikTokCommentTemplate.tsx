@@ -1,0 +1,118 @@
+import React from 'react';
+import { AbsoluteFill } from 'remotion';
+
+// Mesmas propriedades do card do Instagram, para o LyricVideo trocar de template sem conversão
+export type TikTokCommentProps = {
+  username: string;
+  avatarUrl: string;
+  commentText: string;
+  likes: number | string;
+  time: string;
+};
+
+// O TikTok abrevia contagens grandes: 1234 -> 1.2K, 1500000 -> 1.5M
+const formatTikTokCount = (likes: number | string) => {
+  const value = Number(likes);
+  if (!Number.isFinite(value)) return String(likes);
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
+  return String(value);
+};
+
+export const TikTokCommentTemplate: React.FC<TikTokCommentProps> = ({
+  username,
+  avatarUrl,
+  commentText,
+  likes,
+  time,
+}) => {
+  const shortUsername = username || 'Usuário';
+  const avatar = avatarUrl || 'https://github.com/github.png';
+
+  return (
+      <AbsoluteFill
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: 40,
+          fontFamily: '"TikTok Sans", "Proxima Nova", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+        }}
+      >
+        {/* Caixa do Comentário (folha de comentários branca do TikTok) */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'row',
+          backgroundColor: 'rgba(255, 255, 255, 1)',
+          padding: '35px',
+          width: '100%',
+          maxWidth: 900,
+          borderRadius: 24,
+          boxShadow: '0 12px 40px rgba(0,0,0,0.3)',
+          zIndex: 1,
+        }}>
+
+          {/* Foto de Perfil */}
+          <div
+            aria-label={avatar}
+            style={{
+              width: 90,
+              height: 90,
+              flexShrink: 0,
+              borderRadius: '50%',
+              marginRight: 24,
+              backgroundColor: '#e1e1e1',
+              color: '#4a4a4a',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 34,
+              fontWeight: 700,
+              overflow: 'hidden',
+              backgroundImage: avatar ? `url(${avatar})` : 'none',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
+            {!avatar && shortUsername.slice(0, 1).toUpperCase()}
+          </div>
+
+          {/* Conteúdo Central do Comentário */}
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center' }}>
+            {/* No TikTok o nome fica acima do texto, em cinza */}
+            <span style={{ fontWeight: 600, fontSize: 26, color: '#8a8b91', marginBottom: 8 }}>
+              {shortUsername}
+            </span>
+
+            {/* Texto do Comentário */}
+            <span style={{ fontSize: 30, color: '#161823', lineHeight: '1.4', marginBottom: 14, whiteSpace: 'pre-line' }}>
+              {commentText}
+            </span>
+
+            {/* Linha de Data e Responder */}
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{ fontSize: 24, color: '#8a8b91', marginRight: 28 }}>
+                {time}
+              </span>
+              <span style={{ fontSize: 24, color: '#8a8b91', fontWeight: 600 }}>
+                Responder
+              </span>
+            </div>
+          </div>
+
+          {/* Seção do Like (Coração + Contagem) */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: 20, marginTop: 36 }}>
+            <svg
+              width="32" height="32" viewBox="0 0 24 24"
+              fill="none" stroke="#8a8b91" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            >
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span style={{ fontSize: 22, color: '#8a8b91', marginTop: 8, fontWeight: 500 }}>
+              {formatTikTokCount(likes)}
+            </span>
+          </div>
+
+        </div>
+      </AbsoluteFill>
+  );
+};
