@@ -33,7 +33,7 @@ export const InstagramCommentTemplate: React.FC<InstagramCommentProps> = ({
         <div style={{
           display: 'flex',
           flexDirection: 'row',
-          backgroundColor: 'rgba(255, 255, 255, 0.96)', 
+          backgroundColor: 'rgba(255, 255, 255, 1)', 
           padding: '35px',
           width: '100%',
           maxWidth: 900,

@@ -1,0 +1,41 @@
+{
+  "task_id": "5fc1552d-ebee-4fd3-95fa-44634f358a66",
+  "text": [
+    "[Intro]",
+    "Limpou tudo mesmo, cara é bom",
+    "Gosto muito do microondas",
+    "[Verse 1]",
+    "Se entregar pro et 775 e capaz dele conseguir ler isso aí ainda",
+    "Usar máscara cirúrgica pra usar furadeira",
+    "Eu recupero tudo ksksksksksk",
+    "2 marretadas bem firme bem mais rápido e já era",
+    "Formatação física!",
+    "Era só mp3 baixados no Kazaa",
+    "[Chorus]",
+    "Ai depois lembra q tinha uma pasta de bitcoin no HD",
+    "Matou 4 bitcoins",
+    "Foi ele que vazou o GTA 6",
+    "Quando vai ver só histórico do Xvideo",
+    "[Verse 2]",
+    "Furou até o tijolo da churrasqueira sem necessidade!",
+    "Eu uso marreta! Aí não precisa ir na academia nesse dia",
+    "Pra qual político vc trabalha?",
+    "Polícia tá na bota?",
+    "Joga vinagre",
+    "Tá devendo.",
+    "[Outro]",
+    "Que isso seu Jorge, calma ai",
+    "Pelo Mor de deus homi"
+  ],
+  "payload_completo": {
+    "audio_duration": 90,
+    "batch_size": 1,
+    "inference_steps": 20,
+    "lyrics": "[Intro]\nLimpou tudo mesmo, cara é bom\nGosto muito do microondas\n\n[Verse 1]\nSe entregar pro et 775 e capaz dele conseguir ler isso aí ainda\nUsar máscara cirúrgica pra usar furadeira\nEu recupero tudo ksksksksksk\n2 marretadas bem firme bem mais rápido e já era\nFormatação física!\nEra só mp3 baixados no Kazaa\n\n[Chorus]\nAi depois lembra q tinha uma pasta de bitcoin no HD\nMatou 4 bitcoins\nFoi ele que vazou o GTA 6\nQuando vai ver só histórico do Xvideo\n\n[Verse 2]\nFurou até o tijolo da churrasqueira sem necessidade!\nEu uso marreta! Aí não precisa ir na academia nesse dia\nPra qual político vc trabalha?\nPolícia tá na bota?\nJoga vinagre\nTá devendo.\n\n[Outro]\nQue isso seu Jorge, calma ai\nPelo Mor de deus homi",
+    "model": "acestep-v15-turbo",
+    "prompt": "trap ostentação brasileiro, vocal masculino rap confiante com autotune leve, 808 pesado e distorcido, hi-hats rápidos em tercinas, sintetizadores escuros e brilhantes, clima de luxo e marra, produção moderna e limpa",
+    "task_type": "text2music",
+    "thinking": false,
+    "vocal_language": "pt"
+  }
+}

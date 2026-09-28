@@ -1,6 +1,6 @@
 import { Composition, random, staticFile } from "remotion";
 import { getVideoMetadata } from "@remotion/media-utils";
-import { LyricVideo, type LyricVideoProps } from "./lyricvideo";
+import { LyricVideo } from "./lyricvideo";
 
 declare const require: {
   context: (
@@ -83,13 +83,19 @@ const backgroundVideoSeed = `background-video-${Date.now()}`;
 const selectedVideo =
   backgroundVideos[Math.floor(random(backgroundVideoSeed) * backgroundVideos.length)];
 
-type CommentsFile = RawComment[] | { comments?: RawComment[]; audioPath?: string };
+type CommentsFile =
+  | RawComment[]
+  | { comments?: RawComment[]; audioPath?: string; fps?: number };
 
 const commentFiles = require.context("../comments", false, /\.json$/i);
-const latestCommentFile = commentFiles
+const commentFileNames = commentFiles
   .keys()
-  .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0))
-  .slice(-1)[0];
+  .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
+// comments.json é gerado pelo whisper_mcp_server.py com o tempo de cada frase;
+// sem ele, usa o arquivo de comentários mais recente.
+const latestCommentFile =
+  commentFileNames.find((fileName) => fileName.endsWith("/comments.json")) ??
+  commentFileNames.slice(-1)[0];
 
 if (!latestCommentFile) {
   throw new Error("Nenhum arquivo JSON encontrado na pasta comments");
@@ -108,7 +114,8 @@ const totalDuration = normalizedComments.reduce(
 );
 
 const defaultIntroDurationInFrames = 300;
-const fps = 30;
+// Os startFrame/durationInFrames do JSON foram calculados com este FPS.
+const fps = (!Array.isArray(commentsFile) && commentsFile.fps) || 30;
 
 const calculateVideoDurationInFrames = async (src: string) => {
   const metadata = await getVideoMetadata(src);
@@ -117,7 +124,7 @@ const calculateVideoDurationInFrames = async (src: string) => {
 
 export const MyComposition: React.FC = () => {
   return (
-    <Composition<any, LyricVideoProps>
+    <Composition
       id="InstagramCommentVideo"
       component={LyricVideo}
       durationInFrames={defaultIntroDurationInFrames + (totalDuration || 300)}

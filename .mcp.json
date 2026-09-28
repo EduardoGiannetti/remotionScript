@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "whisperx-lyrics": {
+      "type": "stdio",
+      "command": "C:\\Users\\EduardoGiannetti\\Downloads\\remotion\\.venv\\Scripts\\python.exe",
+      "args": ["C:\\Users\\EduardoGiannetti\\Downloads\\remotion\\whisper_mcp_server.py"]
+    }
+  }
+}

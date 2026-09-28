@@ -101,7 +101,7 @@ Dependências Python do MCP, quando a transcrição for necessária:
 python -m pip install -r requirements.txt
 ```
 
-O MCP usa `faster-whisper`. Quando existir um JSON em `timestamps/`, ele tenta alinhamento forçado com WhisperX; nesse caso, o pacote `whisperx` precisa estar instalado.
+O MCP usa WhisperX (que traz o `faster-whisper`) e o SDK `mcp` 2.x. Os modelos `medium` e de alinhamento em português ficam no cache do Hugging Face após o primeiro uso.
 
 ### 2. Preparar comentários
 
@@ -118,19 +118,24 @@ Se houver uma etapa de seleção, ela deve:
 
 ### 3. Preparar áudio e transcrição
 
-Use a ferramenta MCP `transcribe_audio(file_path)` quando for necessário copiar o áudio para `public/audio/`, atualizar `comments/comments.json` e obter timestamps.
+Use a ferramenta MCP `transcribe_audio(file_path, lyrics_path?, comments_path?, fps=30, hold_seconds=1.5)` do servidor `whisperx-lyrics` (registrado em `.mcp.json`). Sem MCP, o mesmo fluxo roda com:
+
+```powershell
+.venv\Scripts\python.exe whisper_mcp_server.py <musica.mp3> [--lyrics <task_id ou arquivo>]
+```
 
 Comportamento da ferramenta:
 
-- valida o arquivo de áudio;
-- copia o arquivo para `public/audio/<nome>`;
-- define `audioPath` como `audio/<nome>`;
-- usa o último JSON de comentários como fonte;
-- salva o objeto consolidado em `comments/comments.json`;
-- se houver timestamps externos, executa alinhamento forçado;
-- caso contrário, transcreve em português com timestamps por palavra.
+- transcreve a música com WhisperX (modelo `medium`, CPU) e alinha cada palavra no tempo;
+- usa a letra `timestamps/<task_id>_lyrics.json` (campo `text`, ignorando marcações como `[Chorus]`). Sem `lyrics_path`, escolhe a letra cujo task_id aparece no nome do áudio ou, na falta dele, a que melhor corresponde ao que foi cantado;
+- localiza cada frase da letra na transcrição aceitando repetições, frases puladas e fora de ordem (a música de IA não segue a letra à risca) e realinha o texto exato da letra para refinar os tempos;
+- associa cada frase cantada ao comentário de origem (o JSON mais recente em `comments/`), tolerando emojis e acentos removidos na letra;
+- grava `comments/comments.json` com um item por frase cantada: todos os campos do comentário + `startFrame` e `durationInFrames`. Frase repetida gera um item por repetição;
+- `durationInFrames` vai do início da frase até `hold_seconds` após o fim dela, limitado pelo início da frase seguinte;
+- copia o áudio para `public/audio/<nome>` e define `audioPath` como `audio/<nome>`;
+- grava o diagnóstico (transcrição, palavras, tempos do ASR e refinados, frases puladas) em `timestamps/aligned/<nome>.json`.
 
-O JSON externo de timestamps pode conter `segments`, `phrases`, `lines`, `text` ou `transcript`. Para alinhamento por frases, mantenha o texto em português e as frases na ordem do áudio.
+A execução leva cerca de 1 a 2 minutos para uma música de 90 s. Confira no retorno `skippedLyrics` (frases que a IA não cantou) e `unmatchedPhrases` (frases sem comentário correspondente, que ficam fora do vídeo).
 
 ### 4. Verificar composição
 
@@ -184,7 +189,7 @@ npx remotion still src/index.ts InstagramCommentVideo out/frame.png
 - Áudio não encontrado: copie-o para `public/audio/` ou use uma URL suportada.
 - Duração incorreta: valide `startFrame`, `durationInFrames` e a duração real do vídeo.
 - Card vazio: confirme `text`/`commentText` e os fallbacks de autoria.
-- Falha de alinhamento: compare as frases do JSON externo com o áudio e instale WhisperX.
+- Frase faltando ou no lugar errado: veja `timestamps/aligned/<nome>.json` (transcrição do ASR, similaridade de cada frase, `skippedLyrics`) e confirme se a letra usada é a da música.
 - Bundle falha: execute `npm run lint` e corrija TypeScript/ESLint antes do render.
 - Conteúdo do fundo não aparece: confirme o nome em `backgroundVideos` e a presença do arquivo em `public/`.
 

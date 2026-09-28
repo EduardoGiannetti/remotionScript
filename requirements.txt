@@ -1,3 +1,3 @@
 faster-whisper
-mcp
+mcp>=2
 whisperx==3.8.7

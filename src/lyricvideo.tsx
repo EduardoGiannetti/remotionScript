@@ -43,7 +43,7 @@ export const LyricVideo: React.FC<LyricVideoProps> = ({
   return (
     <AbsoluteFill style={{ backgroundColor: '#000', zIndex: 0 }}>
       {/* O vídeo de fundo e o áudio tocam de forma contínua */}
-      <Sequence from={0} durationInFrames={safeIntroDurationInFrames}>
+      <Sequence durationInFrames={safeIntroDurationInFrames}>
         <Video
           src={bgVideoUrl}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
