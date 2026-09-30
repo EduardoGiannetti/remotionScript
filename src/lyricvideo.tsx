@@ -1,5 +1,5 @@
 import React from 'react';
-import { AbsoluteFill, Audio, Loop, Sequence, Video, staticFile, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, Audio, Loop, OffthreadVideo, Sequence, staticFile, useCurrentFrame } from 'remotion';
 import { InstagramCommentTemplate, type InstagramCommentProps } from './InstagramCommentTemplate';
 import { TikTokCommentTemplate } from './TikTokCommentTemplate';
 
@@ -46,9 +46,11 @@ export const LyricVideo: React.FC<LyricVideoProps> = ({
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#000', zIndex: 0 }}>
-      {/* O vídeo de fundo e o áudio tocam de forma contínua */}
+      {/* O vídeo de fundo e o áudio tocam de forma contínua.
+          OffthreadVideo extrai cada frame exato via FFmpeg no render; o <Video>
+          HTML5 faz seek impreciso no Chrome e gera frames repetidos/fora de ordem. */}
       <Sequence durationInFrames={safeIntroDurationInFrames}>
-        <Video
+        <OffthreadVideo
           src={bgVideoUrl}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
@@ -56,7 +58,7 @@ export const LyricVideo: React.FC<LyricVideoProps> = ({
 
       <Sequence from={safeIntroDurationInFrames}>
         <Loop durationInFrames={safeBackgroundVideoDurationInFrames}>
-          <Video
+          <OffthreadVideo
             src={bgVideoUrl}
             muted
             style={{

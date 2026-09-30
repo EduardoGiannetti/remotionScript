@@ -1,5 +1,5 @@
 ---
-name: mmd
+name: remotion
 description: Gerar vídeos verticais de comentários usando o fluxo Remotion do projeto Downloads/remotion, com seleção de comentários, transcrição/alinhamento de áudio, composição React e renderização MP4.
 version: 1.0.0
 ---
