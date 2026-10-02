@@ -1,5 +1,6 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
+import { CommentAvatar } from './CommentAvatar';
 
 // Mesmas propriedades do card do Instagram, para o LyricVideo trocar de template sem conversão
 export type TikTokCommentProps = {
@@ -52,29 +53,11 @@ export const TikTokCommentTemplate: React.FC<TikTokCommentProps> = ({
         }}>
 
           {/* Foto de Perfil */}
-          <div
-            aria-label={avatar}
-            style={{
-              width: 90,
-              height: 90,
-              flexShrink: 0,
-              borderRadius: '50%',
-              marginRight: 24,
-              backgroundColor: '#e1e1e1',
-              color: '#4a4a4a',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 34,
-              fontWeight: 700,
-              overflow: 'hidden',
-              backgroundImage: avatar ? `url(${avatar})` : 'none',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          >
-            {!avatar && shortUsername.slice(0, 1).toUpperCase()}
-          </div>
+          <CommentAvatar
+            src={avatar}
+            username={shortUsername}
+            style={{ width: 90, height: 90, flexShrink: 0, marginRight: 24 }}
+          />
 
           {/* Conteúdo Central do Comentário */}
           <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center' }}>

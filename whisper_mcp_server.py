@@ -40,7 +40,7 @@ PUBLIC_DIR = PROJECT_DIR / "public"
 PUBLIC_AUDIO_DIR = PUBLIC_DIR / "audio"
 RENDER_OUTPUT_DIR = PROJECT_DIR / "out"
 
-WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "medium")
+WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "large-v1")
 DEVICE = "cpu"
 COMPUTE_TYPE = "int8"
 LANGUAGE = "pt"
@@ -66,8 +66,8 @@ def transcribe_audio(
     comments_path: str | None = None,
     fps: int = 30,
     hold_seconds: float = 1.5,
-    use_template_background: bool = True,
-    loop_background: bool = True,
+    use_template_background: bool = False,
+    loop_background: bool = False,
 ) -> dict[str, Any]:
     """Transcreve uma música, sincroniza as frases da letra e gera comments/comments.json.
 

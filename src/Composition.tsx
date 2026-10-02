@@ -24,6 +24,8 @@ type RawComment = {
   };
   profilePicUrl?: string;
   avatarUrl?: string;
+  // Avatar baixado pelo scraper, relativo a public/ (as URLs do CDN expiram)
+  avatarFile?: string;
   text?: string;
   commentText?: string;
   likes?: number | string;
@@ -109,8 +111,9 @@ const normalizeComment = (comment: RawComment, index: number) => {
   const platform = detectPlatform(comment);
   const username =
     comment.author?.username ?? comment.username ?? comment.uniqueId ?? `Usuario${index + 1}`;
-  const avatarUrl =
-    comment.author?.profilePicUrl ??
+  const avatarUrl = comment.avatarFile
+    ? staticFile(comment.avatarFile)
+    : comment.author?.profilePicUrl ??
     comment.profilePicUrl ??
     comment.avatarUrl ??
     comment.avatarThumbnail ??
@@ -155,9 +158,9 @@ const parseBooleanEnv = (value: string | undefined, fallback: boolean) =>
 
 const defaultUseTemplateBackground = parseBooleanEnv(
   process.env.REMOTION_USE_TEMPLATE_BACKGROUND,
-  true,
+  false,
 );
-const defaultLoopBackground = parseBooleanEnv(process.env.REMOTION_LOOP_BACKGROUND, true);
+const defaultLoopBackground = parseBooleanEnv(process.env.REMOTION_LOOP_BACKGROUND, false);
 
 type CommentsFile =
   | RawComment[]
@@ -192,6 +195,7 @@ const totalDuration = normalizedComments.reduce(
 const defaultIntroDurationInFrames = 300;
 // Os startFrame/durationInFrames do JSON foram calculados com este FPS.
 const fps = (!Array.isArray(commentsFile) && commentsFile.fps) || 30;
+const originalIntroDurationInFrames = Math.round(17.5 * fps);
 
 const calculateVideoDurationInFrames = async (src: string) => {
   const metadata = await getVideoMetadata(src);
@@ -218,7 +222,10 @@ export const MyComposition: React.FC = () => {
         const backgroundVideoDurationInFrames = await calculateVideoDurationInFrames(
           props.bgVideoUrl,
         );
-        const introDurationInFrames = backgroundVideoDurationInFrames;
+        const introDurationInFrames = Math.min(
+          backgroundVideoDurationInFrames,
+          originalIntroDurationInFrames,
+        );
         const durationInFrames = introDurationInFrames + (totalDuration || 300);
         // O template só existe com loop: template + imagem estática não é uma saída válida.
         const useTemplateBackground = props.useTemplateBackground && Boolean(props.templateVideoUrl);
