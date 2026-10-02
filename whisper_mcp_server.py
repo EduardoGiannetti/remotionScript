@@ -66,6 +66,8 @@ def transcribe_audio(
     comments_path: str | None = None,
     fps: int = 30,
     hold_seconds: float = 1.5,
+    use_template_background: bool = True,
+    loop_background: bool = True,
 ) -> dict[str, Any]:
     """Transcreve uma música, sincroniza as frases da letra e gera comments/comments.json.
 
@@ -78,6 +80,10 @@ def transcribe_audio(
         fps: FPS da composição do Remotion.
         hold_seconds: tempo extra que o comentário fica na tela após o fim da frase
             (limitado pelo início da frase seguinte).
+        use_template_background: depois do vídeo original, usa um vídeo template (sempre em
+            loop) como fundo dos comentários em vez do vídeo original.
+        loop_background: com o vídeo original de fundo, True o repete em loop e False deixa
+            um frame estático dele. Ignorado quando use_template_background é True.
     """
     with _run_lock:
         try:
@@ -87,6 +93,8 @@ def transcribe_audio(
                 _clean_path(comments_path),
                 fps,
                 hold_seconds,
+                use_template_background,
+                loop_background,
             )
         except subprocess.CalledProcessError as error:
             raise ToolError(f"Falha ao renderizar o vídeo (código {error.returncode}).") from error
@@ -107,6 +115,8 @@ def _run(
     comments_path: str | None,
     fps: int,
     hold_seconds: float,
+    use_template_background: bool,
+    loop_background: bool,
 ) -> dict[str, Any]:
     audio_path = _resolve_audio(file_path)
     lyrics_candidates = _lyrics_candidates(audio_path, lyrics_path)
@@ -196,10 +206,18 @@ def _run(
     for phrase in unmatched:
         log.warning("Frase sem comentário correspondente: %s", phrase["lyric"])
 
-    video_path = _render_video(audio_path)
+    # O template só existe em loop: template + imagem estática não é uma saída válida.
+    loop_background = loop_background or use_template_background
+    # video_path = _render_video(
+    #     audio_path,
+    #     {"useTemplateBackground": use_template_background, "loopBackground": loop_background},
+    # )
+    video_path = None  # renderização desativada temporariamente
 
     return {
         "videoPath": str(video_path),
+        "useTemplateBackground": use_template_background,
+        "loopBackground": loop_background,
         "commentsJson": str(COMMENTS_OUTPUT),
         "alignmentJson": str(alignment_path),
         "audioPath": remotion_audio_path,
@@ -319,7 +337,7 @@ def _write_json(path: Path, data: Any) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def _render_video(audio_path: Path) -> Path:
+def _render_video(audio_path: Path, props: dict[str, Any]) -> Path:
     """Exporta a composição usando o comments.json recém-gerado."""
     RENDER_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     safe_stem = re.sub(r"[^A-Za-z0-9._-]+", "_", audio_path.stem).strip("._") or "video"
@@ -332,17 +350,25 @@ def _render_video(audio_path: Path) -> Path:
         "InstagramCommentVideo",
         str(output_path.relative_to(PROJECT_DIR)),
     ]
-    log.info("Renderizando vídeo para %s", output_path)
+    # A escolha do fundo vai por variáveis REMOTION_* (lidas no Composition.tsx), porque
+    # JSON em --props na linha de comando quebra nas aspas do cmd.exe.
+    env = {
+        **os.environ,
+        "REMOTION_USE_TEMPLATE_BACKGROUND": str(props["useTemplateBackground"]).lower(),
+        "REMOTION_LOOP_BACKGROUND": str(props["loopBackground"]).lower(),
+    }
+    log.info("Renderizando vídeo para %s com %s", output_path, props)
     if os.name == "nt":
         subprocess.run(
             subprocess.list2cmdline(command),
             cwd=PROJECT_DIR,
             check=True,
             shell=True,
+            env=env,
             stdout=subprocess.DEVNULL,
         )
     else:
-        subprocess.run(command, cwd=PROJECT_DIR, check=True, stdout=subprocess.DEVNULL)
+        subprocess.run(command, cwd=PROJECT_DIR, check=True, env=env, stdout=subprocess.DEVNULL)
     log.info("Vídeo exportado: %s", output_path)
     return output_path
 

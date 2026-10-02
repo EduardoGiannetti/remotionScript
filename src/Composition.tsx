@@ -13,6 +13,9 @@ declare const require: {
   };
 };
 
+// O bundler do Remotion injeta as variáveis de ambiente com prefixo REMOTION_.
+declare const process: { env: Record<string, string | undefined> };
+
 type RawComment = {
   username?: string;
   author?: {
@@ -131,13 +134,30 @@ const normalizeComment = (comment: RawComment, index: number) => {
   };
 };
 
-const backgroundVideos = [
-  "furadeira.mp4",
+// Vídeo original: toca inteiro na abertura e pode virar o fundo dos comentários.
+const originalVideo = "cuida.mp4";
+
+// Templates que podem substituir o vídeo original como fundo dos comentários.
+const templateVideos = [
+  "danca.mp4",
 ];
 
-const backgroundVideoSeed = `background-video-${Date.now()}`;
-const selectedVideo =
-  backgroundVideos[Math.floor(random(backgroundVideoSeed) * backgroundVideos.length)];
+const templateVideoSeed = `template-video-${Date.now()}`;
+const selectedTemplate =
+  templateVideos[Math.floor(random(templateVideoSeed) * templateVideos.length)];
+
+// Escolha do fundo depois do vídeo original. Também podem ser trocados no render com
+// --props='{"useTemplateBackground":true}' ou --props='{"loopBackground":false}',
+// ou pelas variáveis REMOTION_USE_TEMPLATE_BACKGROUND e REMOTION_LOOP_BACKGROUND
+// ("true"/"false"), que o whisper_mcp_server.py define ao renderizar.
+const parseBooleanEnv = (value: string | undefined, fallback: boolean) =>
+  value === undefined || value === "" ? fallback : value.toLowerCase() === "true";
+
+const defaultUseTemplateBackground = parseBooleanEnv(
+  process.env.REMOTION_USE_TEMPLATE_BACKGROUND,
+  true,
+);
+const defaultLoopBackground = parseBooleanEnv(process.env.REMOTION_LOOP_BACKGROUND, true);
 
 type CommentsFile =
   | RawComment[]
@@ -178,6 +198,13 @@ const calculateVideoDurationInFrames = async (src: string) => {
   return Math.max(1, Math.ceil(metadata.durationInSeconds * fps));
 };
 
+// Os últimos frames costumam ser fade para preto, então congela ~1s antes do fim.
+// Em vídeos com menos de 2s, usa o meio do vídeo.
+const calculateStillFrame = (videoDurationInFrames: number) =>
+  videoDurationInFrames > 2 * fps
+    ? videoDurationInFrames - fps
+    : Math.floor(videoDurationInFrames / 2);
+
 export const MyComposition: React.FC = () => {
   return (
     <Composition
@@ -193,6 +220,12 @@ export const MyComposition: React.FC = () => {
         );
         const introDurationInFrames = backgroundVideoDurationInFrames;
         const durationInFrames = introDurationInFrames + (totalDuration || 300);
+        // O template só existe com loop: template + imagem estática não é uma saída válida.
+        const useTemplateBackground = props.useTemplateBackground && Boolean(props.templateVideoUrl);
+        const loopBackground = useTemplateBackground || props.loopBackground;
+        const templateVideoDurationInFrames = useTemplateBackground
+          ? await calculateVideoDurationInFrames(props.templateVideoUrl)
+          : props.templateVideoDurationInFrames;
 
         return {
           durationInFrames,
@@ -201,6 +234,10 @@ export const MyComposition: React.FC = () => {
             introDurationInFrames,
             backgroundVideoDurationInFrames,
             durationInFrames,
+            useTemplateBackground,
+            loopBackground,
+            templateVideoDurationInFrames,
+            stillFrame: props.stillFrame ?? calculateStillFrame(backgroundVideoDurationInFrames),
           },
         };
       }}
@@ -208,11 +245,15 @@ export const MyComposition: React.FC = () => {
         audioPath: !Array.isArray(commentsFile)
           ? commentsFile.audioPath ?? "vaporwave.mp3"
           : "vaporwave.mp3",
-        bgVideoUrl: staticFile(selectedVideo),
+        bgVideoUrl: staticFile(originalVideo),
         comments: normalizedComments,
         introDurationInFrames: defaultIntroDurationInFrames,
         backgroundVideoDurationInFrames: defaultIntroDurationInFrames,
         durationInFrames: defaultIntroDurationInFrames + (totalDuration || 300),
+        useTemplateBackground: defaultUseTemplateBackground,
+        loopBackground: defaultLoopBackground,
+        templateVideoUrl: staticFile(selectedTemplate),
+        templateVideoDurationInFrames: defaultIntroDurationInFrames,
       }}
     />
   );
