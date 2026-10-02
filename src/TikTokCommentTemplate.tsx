@@ -88,7 +88,7 @@ export const TikTokCommentTemplate: React.FC<TikTokCommentProps> = ({
               {commentText}
             </span>
 
-            {/* Linha de Data e Responder */}
+            {/* Linha de ações: Data e Responder à esquerda; Like, contagem e Dislike à direita */}
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <span style={{ fontSize: 24, color: '#8a8b91', marginRight: 28 }}>
                 {time}
@@ -96,20 +96,25 @@ export const TikTokCommentTemplate: React.FC<TikTokCommentProps> = ({
               <span style={{ fontSize: 24, color: '#8a8b91', fontWeight: 600 }}>
                 Responder
               </span>
-            </div>
-          </div>
 
-          {/* Seção do Like (Coração + Contagem) */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: 20, marginTop: 36 }}>
-            <svg
-              width="32" height="32" viewBox="0 0 24 24"
-              fill="none" stroke="#8a8b91" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-            >
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
-            <span style={{ fontSize: 22, color: '#8a8b91', marginTop: 8, fontWeight: 500 }}>
-              {formatTikTokCount(likes)}
-            </span>
+              <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
+                <svg
+                  width="30" height="30" viewBox="0 0 24 24"
+                  fill="none" stroke="#8a8b91" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                <span style={{ fontSize: 22, color: '#8a8b91', marginLeft: 8, marginRight: 28, fontWeight: 500 }}>
+                  {formatTikTokCount(likes)}
+                </span>
+                <svg
+                  width="30" height="30" viewBox="0 0 24 24"
+                  fill="none" stroke="#8a8b91" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                >
+                  <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path>
+                </svg>
+              </div>
+            </div>
           </div>
 
         </div>

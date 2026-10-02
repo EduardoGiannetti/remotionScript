@@ -83,7 +83,7 @@ const formatInstagramDate = (comment: RawComment) => {
   return `${elapsedWeeks} sem`;
 };
 
-// O TikTok usa tempo relativo na primeira semana e depois a data como DD-MM.
+// O TikTok usa tempo relativo na primeira semana e depois a data como MM-DD.
 const formatTikTokDate = (comment: RawComment) => {
   const dateValue = parseCommentDate(comment);
 
@@ -102,7 +102,7 @@ const formatTikTokDate = (comment: RawComment) => {
 
   const day = `0${dateValue.getDate()}`.slice(-2);
   const month = `0${dateValue.getMonth() + 1}`.slice(-2);
-  return `${day}-${month}`;
+  return `${month}-${day}`;
 };
 
 const normalizeComment = (comment: RawComment, index: number) => {
